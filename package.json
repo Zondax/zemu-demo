@@ -1,0 +1,27 @@
+{
+    "name": "zemu-demo",
+    "description": "A demo package to show off @zondax/zemu",
+    "version": "1.0.0",
+    "author": "Francesco Dainese <francesco@zondax.ch>",
+    "license": "Apache-2.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "typings": "./dist/index.d.ts",
+    "types": "./dist/index.d.ts",
+    "moduleDirectories": [
+        "node_modules",
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "postinstall": "tsc",
+        "default": "node ./dist/index.js"
+    },
+    "dependencies": {
+        "@types/node": "^16.4.12",
+        "@zondax/zemu": "^0.16.5"
+    },
+    "devDependencies": {
+        "typescript": "4.3.5"
+    }
+}
