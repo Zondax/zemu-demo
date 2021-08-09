@@ -14,52 +14,59 @@
  *  limitations under the License.
  ******************************************************************************* */
 
-import Zemu from '@zondax/zemu'
+import Zemu from "@zondax/zemu";
+import { exit } from "process";
 
 // Options to start Zemu with
 // All timings are in ms
 const startOptions = {
-    //Specify for which device the app was built for
-    //supported values are: "nanos", "nanox"
-    model: "nanox",
+  //Specify for which device the app was built for
+  //supported values are: "nanos", "nanox"
+  model: "nanox",
 
-    //Enable logging of all Zemu actions to console (with timestamp)
-    logging: false,
+  //Enable logging of all Zemu actions to console (with timestamp)
+  logging: false,
 
-    //Indicate wheter an X11 window will be displayed with the emulated screen or not
-    //You can interfact with the window with your arrow keys
-    //Press both arrow to signal to click both
-    X11: false,
+  //Indicate wheter an X11 window will be displayed with the emulated screen or not
+  //You can interfact with the window with your arrow keys
+  //Press both arrow to signal to click both
+  X11: false,
 
-    //Delay between starting the emulator and attempting to connect to it
-    startDelay: 3500,
+  //Delay between starting the emulator and attempting to connect to it
+  startDelay: 3500,
 
-    //Delay between pressing and releasing the button
-    pressDelay: 250,
-    //Delay before taking a snapshot after releasing the button
-    //This allows speculos to repaint after an event
-    pressDelayAfter: 700,
+  //Delay between pressing and releasing the button
+  pressDelay: 250,
+  //Delay before taking a snapshot after releasing the button
+  //This allows speculos to repaint after an event
+  pressDelayAfter: 700,
 
-    //Custom arguments to be passed directly to speculos
-    //Check speculos documentation for valid arguments
-    custom: '',
-}
+  //Custom arguments to be passed directly to speculos
+  //Check speculos documentation for valid arguments
+  custom: "",
+};
 
-const EXAMPLE_MNEMONIC: string = "equip will roof matter pink blind book anxiety banner elbow sun young";
+const EXAMPLE_MNEMONIC: string =
+  "equip will roof matter pink blind book anxiety banner elbow sun young";
 
-//Will pull the image used by Zemu if not present already
-await Zemu.checkAndPullImage()
+(async () => {
+  //Will pull the image used by Zemu if not present already
+  await Zemu.checkAndPullImage();
 
-//Will trow an error if the elf metadata doesn't match
-// the provided model
-Zemu.checkElf("nanox", "app.elf");
+  //Will trow an error if the elf metadata doesn't match
+  // the provided model
+  Zemu.checkElf("nanox", "app.elf");
 
-const sim = new Zemu(require('path').resolve("app.elf"))
+  const sim = new Zemu(require("path").resolve("app.elf"));
 
-
-//start simulation, enable logging, X11 and pass a custom mnemonic for seed
-try {
-    await sim.start({ ...startOptions, logging: true, X11: true, custom: `-s ${EXAMPLE_MNEMONIC}` })
+  //start simulation, enable logging, X11 and pass a custom mnemonic for seed
+  try {
+    await sim.start({
+      ...startOptions,
+      logging: true,
+      X11: true,
+      custom: `-s "${EXAMPLE_MNEMONIC}"`,
+    });
 
     //Simply wait some ms
     await Zemu.sleep(100);
@@ -69,11 +76,11 @@ try {
     //self explanatory, will signal the app with the corresponding button events
     await sim.clickRight();
     await sim.clickLeft();
-    await sim.clickBoth()
+    await sim.clickBoth();
 
     //will take a snapshot of the current frame
     //and save it at the provided path
-    await sim.snapshot("screen.png")
+    await sim.snapshot("screen.png");
 
     //The first parameter is the root folder where both:
     //  * the reference snapshots (snapshots)
@@ -87,11 +94,15 @@ try {
     // each positive number represents the number of right clicks
     // while negative numbers represent the number of left clicks
     // 0 is special and represents clicking both buttons
-    await sim.navigateAndCompareSnapshots("root_folder", "session_folder", [3, -1, 1, 0]);
+    await sim.navigateAndCompareSnapshots(
+      "root_folder",
+      "session_folder",
+      [3, -1, 1, 0]
+    );
 
     //will retrieve the saved image of the main menu
     //taken when the app was started
-    sim.getMainMenuSnapshot()
+    sim.getMainMenuSnapshot();
 
     //Wait with a configurable timeout (20000 ms) until the screen changes from the given one
     //useful when issuing a command that requires confirmation
@@ -110,12 +121,13 @@ try {
 
     //Awaiting the promise will yield the result after all the navigation has been done
     //const foo = await fooReq;
-} finally {
+  } finally {
     //it's important to close off the simulation before exiting the script!
-    await sim.close()
-}
+    await sim.close();
+  }
 
-//This function tries to stop all running containers
-//used for the emulation (since multiple can be started)
-//otherwise exits the process after 10s
-await Zemu.stopAllEmuContainers()
+  //This function tries to stop all running containers
+  //used for the emulation (since multiple can be started)
+  //otherwise exits the process after 10s
+  await Zemu.stopAllEmuContainers();
+})();
